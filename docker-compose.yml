@@ -5,13 +5,21 @@ services:
     volumes:
       - .dockervenv:/src/.venv
       - .:/src
-    environment:
-      - WATCHFILES_FORCE_POLLING=true
-      - DEBUG=0
-    # command: sh -c "python3 -m debugpy --listen 0.0.0.0:5678 -m uvicorn main:app --reload --proxy-headers --host='0.0.0.0' --port=8000"
-    # entrypoint: sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn main:app --reload --proxy-headers --host='0.0.0.0' --port=8000"
     ports:
-      - "8000:8000"
-      # - "5678:5678"
-    # tty: true
-    # stdin_open: true
+      - 8000:8000 # ホストマシンのポート8000を、docker内のポート8000に接続する
+    environment:
+      - WATCHFILES_FORCE_POLLING=true  # 環境によってホットリロードのために必要
+  db:
+    image: mysql:8.0
+    platform: linux/x86_64 # AppleシリコンのMac（M1/M2など）の場合必要
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # rootアカウントをパスワードなしで作成
+      MYSQL_DATABASE: 'demo'  # 初期データベースとしてdemoを設定
+      TZ: 'Asia/Tokyo'  # タイムゾーンを日本時間に設定
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password # MySQL8.0ではデフォルトが"caching_sha2_password"で、ドライバが非対応のため変更
+    ports:
+      - 33306:3306 # ホストマシンのポート33306を、docker内のポート3306に接続する
+volumes:
+  mysql_data:

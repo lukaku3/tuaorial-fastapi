@@ -1,0 +1,17 @@
+version: "3"
+services:
+  backend:
+    build: .
+    volumes:
+      - .dockervenv:/src/.venv
+      - .:/src
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+      - DEBUG=0
+    # command: sh -c "python3 -m debugpy --listen 0.0.0.0:5678 -m uvicorn main:app --reload --proxy-headers --host='0.0.0.0' --port=8000"
+    # entrypoint: sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn main:app --reload --proxy-headers --host='0.0.0.0' --port=8000"
+    ports:
+      - "8000:8000"
+      # - "5678:5678"
+    # tty: true
+    # stdin_open: true

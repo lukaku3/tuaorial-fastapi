@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+
 import api.models.task as task_model
 import api.schemas.task as task_schema
 
@@ -38,3 +39,8 @@ def update_task(
     db.commit()
     db.refresh(original)
     return original
+
+
+def delete_task(db: Session, original: task_model.Task) -> None:
+    db.delete(original)
+    db.commit()

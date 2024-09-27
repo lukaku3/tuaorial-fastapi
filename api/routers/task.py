@@ -18,7 +18,7 @@ async def list_tasks():
 async def create_tasks(
     task_body: task_schema.TaskCreate, db: Session = Depends(get_db)
 ):
-    return task_schema.TaskCreateResponse(id=1, **task_body.dict())
+    return task_crud.create_task(db, task_body)
 
 
 @router.put("/tasks/{task_id}", response_model=task_schema.TaskCreateResponse)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import api.schemas.task as task_schema
 
@@ -10,7 +10,7 @@ router = APIRouter()
 
 # @router.get("/tasks")
 @router.get("/tasks", response_model=list[task_schema.Task])
-async def list_tasks():
+async def list_tasks(db: Session = Depends(get_db)):
     return [task_schema.Task(id=1, title="1つ目のToDoタスク")]
 
 
@@ -22,8 +22,15 @@ async def create_tasks(
 
 
 @router.put("/tasks/{task_id}", response_model=task_schema.TaskCreateResponse)
-async def update_tasks(task_id: int, task_body: task_schema.TaskCreate):
-    return task_schema.TaskCreateResponse(id=task_id, **task_body.dict())
+async def update_tasks(
+    task_id: int, task_body: task_schema.TaskCreate, db: Session = Depends(get_db)
+):
+    print(f"put: {task_id}")
+    # return task_schema.TaskCreateResponse(id=task_id, **task_body.dict())
+    task = task_crud.get_task(db, task_id=task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not Found.")
+    return task_crud.update_task(db, task_body, original=task)
 
 
 @router.delete("/tasks/{task_id}", response_model=None)
